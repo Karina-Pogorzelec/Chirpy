@@ -1,0 +1,6 @@
+POST http://localhost:8080/api/validate_chirp
+Content-Type: application/json
+
+{
+  "body": "This is a very long chirp that definitely exceeds the one hundred and forty character limit we set in our Go code to ensure that users are being brief and concise with their thoughts."
+}
