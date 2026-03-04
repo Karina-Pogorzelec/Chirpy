@@ -1,17 +1,36 @@
 package main
 
+import _ "github.com/lib/pq"
+
 import (
 	"net/http"
 	"log"
 	"sync/atomic"
+	"os"
+	"database/sql"
+
+	"github.com/joho/godotenv"
+	"github.com/Karina-Pogorzelec/Chirpy/internal/database"
 )
 
 type apiConfig struct {
 	fileserverHits atomic.Int32
+	db			 *database.Queries
 }
 
 func main() {
-	apiCfg := &apiConfig{}
+	godotenv.Load()
+
+	dbURL := os.Getenv("DB_URL")
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	dbQueries := database.New(db)
+
+	apiCfg := &apiConfig{
+		db: dbQueries,
+	}
 
 	serverMux := http.NewServeMux()
 
@@ -29,7 +48,7 @@ func main() {
 		Handler: serverMux,
 	}
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}
