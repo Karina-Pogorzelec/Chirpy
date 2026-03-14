@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"errors"
 	"strings"
+	"crypto/rand"
+	"encoding/hex"
 )
 
 func HashPassword(password string) (string, error) {
@@ -64,4 +66,10 @@ func GetBearerToken(headers http.Header) (string, error) {
 
 	token := strings.TrimPrefix(authHeader, "Bearer ")
 	return token, nil
+}
+
+func MakeRefreshToken() string {
+	key := make([]byte, 32)
+	rand.Read(key)
+	return hex.EncodeToString(key)
 }

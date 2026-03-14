@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/Karina-Pogorzelec/Chirpy/internal/auth"
+	"github.com/Karina-Pogorzelec/Chirpy/internal/database"
 )
 
 
@@ -48,19 +49,22 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var ExpiresIn int
-	
-	if params.ExpiresInSeconds > 3600 || params.ExpiresInSeconds == 0 {
-		ExpiresIn = 3600
-	} else {
-		ExpiresIn = params.ExpiresInSeconds
-	}
-
-	duration := time.Duration(ExpiresIn) * time.Second
+	duration := time.Hour
 
 	token, err := auth.MakeJWT(user.ID, cfg.jwtSecret, duration)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create JWT")
+		return
+	}
+
+	refreshToken := auth.MakeRefreshToken()
+
+	_, err = cfg.db.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
+		Token: refreshToken,
+		UserID: uuid.NullUUID{UUID: user.ID, Valid: true},
+	})
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't create refresh token")
 		return
 	}
 
@@ -70,6 +74,7 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
     UpdatedAt time.Time `json:"updated_at"`
     Email     string    `json:"email"`
     Token     string    `json:"token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 	respondWithJSON(w, http.StatusOK, response{
@@ -78,5 +83,6 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt: user.UpdatedAt,
 		Email:     user.Email,
 		Token:     token,
+		RefreshToken: refreshToken,
 	})
 }
