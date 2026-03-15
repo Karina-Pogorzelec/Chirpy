@@ -23,11 +23,11 @@ where token = $1
 
 type GetRefreshTokenRow struct {
 	Token          string
-	CreatedAt      sql.NullTime
-	UpdatedAt      sql.NullTime
-	ExpiresAt      sql.NullTime
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	ExpiresAt      time.Time
 	RevokedAt      sql.NullTime
-	UserID         uuid.NullUUID
+	UserID         uuid.UUID
 	ID             uuid.UUID
 	CreatedAt_2    time.Time
 	UpdatedAt_2    time.Time
