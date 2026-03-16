@@ -14,7 +14,7 @@ import (
 )
 
 const getRefreshToken = `-- name: GetRefreshToken :one
-select token, refresh_tokens.created_at, refresh_tokens.updated_at, expires_at, revoked_at, user_id, id, users.created_at, users.updated_at, email, hashed_password from refresh_tokens 
+select token, refresh_tokens.created_at, refresh_tokens.updated_at, expires_at, revoked_at, user_id, id, users.created_at, users.updated_at, email, hashed_password, is_chirpy_red from refresh_tokens 
 join users on users.id = refresh_tokens.user_id
 where token = $1
     AND expires_at > NOW()
@@ -33,6 +33,7 @@ type GetRefreshTokenRow struct {
 	UpdatedAt_2    time.Time
 	Email          string
 	HashedPassword string
+	IsChirpyRed    bool
 }
 
 func (q *Queries) GetRefreshToken(ctx context.Context, token string) (GetRefreshTokenRow, error) {
@@ -50,6 +51,7 @@ func (q *Queries) GetRefreshToken(ctx context.Context, token string) (GetRefresh
 		&i.UpdatedAt_2,
 		&i.Email,
 		&i.HashedPassword,
+		&i.IsChirpyRed,
 	)
 	return i, err
 }

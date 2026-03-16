@@ -55,10 +55,12 @@ func (cfg *apiConfig) handlerUpdateUser(w http.ResponseWriter, r *http.Request) 
 	type response struct {
 		ID string `json:"id"`
 		Email string `json:"email"`
+		IsChirpyRed bool `json:"is_chirpy_red"`
 	}
 
 	respondWithJSON(w, http.StatusOK, response{
 		ID: updatedUser.ID.String(),
 		Email: updatedUser.Email,
+		IsChirpyRed: updatedUser.IsChirpyRed,
 	})
 }
