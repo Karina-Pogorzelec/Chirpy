@@ -7,6 +7,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/Karina-Pogorzelec/Chirpy/internal/auth"
 	
 )
 
@@ -18,9 +19,15 @@ func (cfg *apiConfig) handlerPolkaWebhook(w http.ResponseWriter, r *http.Request
 		} `json:"data"`
 	}
 
+	apiKey, err := auth.GetAPIKey(r.Header)
+	if err != nil || apiKey != cfg.polkaSecret {
+		respondWithError(w, http.StatusUnauthorized, "Invalid API key")
+		return
+	}
+
 	decoder := json.NewDecoder(r.Body)
     params := PolkaWebhookRequest{}
-    err := decoder.Decode(&params)
+    err = decoder.Decode(&params)
     if err != nil {
         respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters")
         return

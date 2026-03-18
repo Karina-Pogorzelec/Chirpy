@@ -19,11 +19,13 @@ type apiConfig struct {
 	db			   *database.Queries
 	platform	   string
 	jwtSecret	   string
+	polkaSecret	   string
 }
 
 func main() {
 	godotenv.Load()
 	platform := os.Getenv("PLATFORM")
+	polkaSecret := os.Getenv("POLKA_KEY")
 	jwtSecret := os.Getenv("JWT_SECRET")
 
 	dbURL := os.Getenv("DB_URL")
@@ -37,6 +39,7 @@ func main() {
 		db: dbQueries,
 		platform: platform,
 		jwtSecret: jwtSecret,
+		polkaSecret: polkaSecret,
 	}
 
 	serverMux := http.NewServeMux()
